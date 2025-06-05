@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arithmetic Calculator</title>
+    <!-- Tailwind CSS CDN for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Apply Inter font globally and ensure a pleasant default background */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Arithmetic Calculator</h1>
+
+        <form id="calculatorForm" class="space-y-4">
+            <!-- First Number Input -->
+            <div>
+                <label for="num1" class="block text-gray-700 text-sm font-medium mb-1">First Number:</label>
+                <input
+                    type="number"
+                    id="num1"
+                    name="num1"
+                    required
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+            </div>
+
+            <!-- Second Number Input -->
+            <div>
+                <label for="num2" class="block text-gray-700 text-sm font-medium mb-1">Second Number:</label>
+                <input
+                    type="number"
+                    id="num2"
+                    name="num2"
+                    required
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+            </div>
+
+            <!-- Operation Selection -->
+            <div>
+                <label for="operation" class="block text-gray-700 text-sm font-medium mb-1">Operation:</label>
+                <select
+                    id="operation"
+                    name="operation"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white appearance-none pr-8"
+                >
+                    <option value="add">Addition (+)</option>
+                    <option value="subtract">Subtraction (-)</option>
+                    <option value="multiply">Multiplication (*)</option>
+                    <option value="divide">Division (/)</option>
+                </select>
+            </div>
+
+            <!-- Calculate Button -->
+            <button
+                type="submit"
+                class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 ease-in-out shadow-md"
+            >
+                Calculate
+            </button>
+        </form>
+
+        <h2 class="text-xl font-bold text-gray-800 mt-8 mb-4 text-center">Result:</h2>
+        <div
+            id="result"
+            class="text-center text-lg font-medium text-gray-600 p-4 bg-gray-100 rounded-lg border border-gray-200"
+        >
+            Result will appear here.
+        </div>
+    </div>
+
+    <script>
+        // Add event listener for the form submission
+        document.getElementById('calculatorForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the default form submission to handle it with JavaScript
+
+            // Get values from input fields
+            const num1 = document.getElementById('num1').value;
+            const num2 = document.getElementById('num2').value;
+            const operation = document.getElementById('operation').value;
+
+            try {
+                // Send a POST request to the '/calculate' endpoint
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', // Specify content type as JSON
+                    },
+                    // Convert input values to numbers and send as JSON payload
+                    body: JSON.stringify({ num1: parseFloat(num1), num2: parseFloat(num2), operation }),
+                });
+
+                // Parse the JSON response from the server
+                const data = await response.json();
+
+                // Check if the response was not successful (e.g., status 400 or 500)
+                if (!response.ok) {
+                    // Throw an error with the message from the server or a generic one
+                    throw new Error(data.error || 'Something went wrong on the server.');
+                }
+
+                // Display the successful result
+                // Corrected string interpolation for displaying the result
+                document.getElementById('result').innerText = `Result: ${data.result}`;
+            } catch (error) {
+                // Display any errors that occurred during the fetch operation
+                document.getElementById('result').innerText = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
